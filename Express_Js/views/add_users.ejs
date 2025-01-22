@@ -1,0 +1,79 @@
+<%- include('layout/header') %>
+<div class = "container">
+    <div class="row">
+       <div class=""co-lg-12"">
+       
+       </div>
+        
+    </div>
+</div>
+<%- include('layout/footer') %>
+
+<div class="container my-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <!-- Card Header -->
+                <div class="card-header bg-primary text-white text-center py-3 rounded-top">
+                    <h4 class="fw-bold">Add New User</h4>
+                    <small>Please provide the details below</small>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body p-3">
+                    <form action="/add" method="post" id="add-form" enctype="multipart/form-data">
+                        <!-- Name Input -->
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-primary text-white">
+                                    <i class="fas fa-user"></i>
+                                </span>
+                                <input type="text" name="name" class="form-control" placeholder="Enter full name" required>
+                            </div>
+                        </div>
+                        <!-- Email Input -->
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-primary text-white">
+                                    <i class="fas fa-envelope"></i>
+                                </span>
+                                <input type="email" name="email" class="form-control" placeholder="Enter email address" required>
+                            </div>
+                        </div>
+                        <!-- Phone Input -->
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-primary text-white">
+                                    <i class="fas fa-phone"></i>
+                                </span>
+                                <input type="tel" name="phone" class="form-control" placeholder="Enter phone number" required>
+                            </div>
+                        </div>
+                        <!-- Image Input -->
+                        <div class="mb-3">
+                            <label for="image" class="form-label">Profile Picture</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-primary text-white">
+                                    <i class="fas fa-image"></i>
+                                </span>
+                                <input type="file" name="image" class="form-control" required>
+                            </div>
+                        </div>
+                        <!-- Submit Button -->
+                        <div class="d-grid">
+                            <button type="submit" name="submit" class="btn btn-primary rounded-pill">
+                                <i class="fas fa-user-plus me-1"></i> Add User
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <!-- Card Footer -->
+                <div class="card-footer text-center bg-light py-2">
+                    <small>Need help? <a href="#" class="text-primary">Contact Support</a></small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
