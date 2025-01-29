@@ -1,0 +1,39 @@
+<%- include('upload/header') %>
+
+<div class="container mt-5">
+    <h1>Add New Student</h1>
+    <p>Enter the details of the new student to add them to the database.</p>
+
+    <!-- Add Student Form -->
+    <form action="/faculty/student/add" method="POST">
+        <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input type="text" class="form-control" id="name" name="name" placeholder="Enter student name" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="age" class="form-label">Age</label>
+            <input type="number" class="form-control" id="age" name="age" placeholder="Enter student age" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="stream" class="form-label">Stream</label>
+            <input type="text" class="form-control" id="stream" name="stream" placeholder="Enter student stream" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="sem" class="form-label">Semester</label>
+            <input type="number" class="form-control" id="sem" name="sem" placeholder="Enter student semester" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="codingLevel" class="form-label">Coding Level</label>
+            <input type="text" class="form-control" id="codingLevel" name="codingLevel" placeholder="Enter student coding level" required>
+        </div>
+
+        <button type="submit" class="btn btn-success">Add Student</button>
+        <a href="/faculty/student" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+
+<%- include('upload/footer') %>

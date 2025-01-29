@@ -1,0 +1,22 @@
+
+<%- include('upload/header') %>
+   
+
+<div class="container">
+    <div class="card">
+      <div class="card-header text-center">
+        <h1 class="card-title">Welcome to the Admin Home</h1>
+        <p>Manage **Student** and **Faculty** data. Choose one of the options below.</p>
+      </div>
+      <div class="card-body text-center">
+        <div class="d-grid gap-3">
+          <!-- Button to manage students -->
+          <button class="btn btn-custom btn-primary" onclick="window.location.href='/admin/student'">Manage Students</button>
+          <!-- Button to manage faculty -->
+          <button class="btn btn-custom btn-success" onclick="window.location.href='/admin/faculty'">Manage Faculty</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<%- include('upload/footer') %>

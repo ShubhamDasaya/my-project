@@ -1,0 +1,52 @@
+<%- include('upload/header') %>
+<div class="container mt-5">
+    <h1>Student Data</h1>
+    <p>This page displays the student data and provides options to update or delete records.</p>
+    
+    <!-- Button to add a new student -->
+    <div class="d-grid gap-2 mb-3">
+      <a href="/admin/student/add" class="btn btn-primary">Add New Student</a>
+    </div>
+
+    <!-- Table to display student data -->
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Age</th>
+          <th>Stream</th>
+          <th>Semester</th>
+          <th>Coding Level</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (students && students.length > 0) { %>
+          <% students.forEach((student, index) => { %>
+            <tr>
+              <td><%= index + 1 %></td>
+              <td><%= student.name %></td>
+              <td><%= student.age %></td>
+              <td><%= student.stream %></td>
+              <td><%= student.sem %></td>
+              <td><%= student.codingLevel %></td>
+              <td>
+                <!-- Update button -->
+                <a href="/admin/student/update/<%= student._id %>" class="btn btn-warning btn-sm">Update</a>
+                <!-- Delete button -->
+                <form action="/admin/student/delete/<%= student._id %>" method="POST" style="display:inline;">
+                  <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="7" class="text-center">No students found</td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+</div>
+<%- include('upload/footer') %>
