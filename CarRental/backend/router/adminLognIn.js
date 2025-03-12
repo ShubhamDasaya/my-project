@@ -1,7 +1,6 @@
 import express from 'express';
-import { body } from 'express-validator';
+
 import auth from '../middlewares/auth.js';
-import { userSignIn, userSignUp } from '../controllers/adminController/adminControllers.js';
 import {addNewVehicle,updateVehicle,vehiclePage,deleteVehicle,maintenanceVehicles,availableVehicles, bookedVehicle} from "../controllers/adminController/vehicleInfoController.js"
 import {createBooking, getAllBookings, getBookingById,updateBooking,cancelBooking   } from '../controllers/adminController/bookingVehicleController.js';
 import { adminBookVehicle,adminCancelBooking, completeBooking, maintenVehicles, availableVehiclesOnMainten } from "../controllers/adminController/adminBookVehicleController.js"
@@ -12,20 +11,7 @@ const router = express.Router();
 
 // router.get('/sign-up', adminHomepage);
 // Admin registration
-router.post("/sign-up",
-    body("name","name is requied").notEmpty(),
-    body("email", "Invalid Email id").isEmail(),
-    body("email", "Email id is required").notEmpty(),
-    body("contect","contect is requied").notEmpty(),
-    body("password", "Password is required").notEmpty(),
-    body("password", "Invalid Password").isLength({ min: 6, max: 10 }), 
-     userSignUp);
-// Admin login    
-router.post("/sign-in",
-        body("email","Invalid Email").isEmail(),
-        body("password","Password is required").notEmpty(),
-         userSignIn
-    );
+
 
 
     
