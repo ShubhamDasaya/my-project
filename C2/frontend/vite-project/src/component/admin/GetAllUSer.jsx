@@ -7,10 +7,7 @@ const GetAllUsers = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const getAuthHeaders = () => {
-    const token = localStorage.getItem("token");
-    return token ? { Authorization: `Bearer ${token}` } : {};
-  };
+ 
 
   useEffect(() => {
     fetchUsers();
@@ -19,8 +16,8 @@ const GetAllUsers = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const headers = getAuthHeaders();
-      const response = await axios.get(APIs.ALL_USERS_API, { headers });
+    
+      const response = await axios.get(APIs.ALL_USERS_API);
       setUsers(response.data.users);
       setError("");
     } catch (error) {
@@ -31,35 +28,23 @@ const GetAllUsers = () => {
     }
   };
 
-  const handleSuspendUser = async (id) => {
-    try {
-      const headers = getAuthHeaders();
-      await axios.put(`${APIs.SUSPEND_USER_API}/${id}`, {}, { headers });
-      await fetchUsers();
-    } catch (error) {
-      console.error("Error suspending user:", error?.response?.data || error.message);
-    }
-  };
 
-  const handleUnsuspendUser = async (id) => {
-    try {
-      const headers = getAuthHeaders();
-      await axios.put(`${APIs.UNSUSPEND_USER_API}/${id}`, {}, { headers });
-      await fetchUsers();
-    } catch (error) {
-      console.error("Error unsuspending user:", error?.response?.data || error.message);
-    }
-  };
-
+  
   const handleDeleteUser = async (id) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this user?");
+    if (!confirmDelete) return;
+  
     try {
-      const headers = getAuthHeaders();
-      await axios.delete(`${APIs.DELETE_USER_API}/${id}`, { headers });
+      
+      await axios.delete(APIs.DELETE_USER_API(id));
       await fetchUsers();
     } catch (error) {
       console.error("Error deleting user:", error?.response?.data || error.message);
     }
   };
+  
+
+  
 
   return (
     <div className="container mt-4">
@@ -78,31 +63,19 @@ const GetAllUsers = () => {
               <th>#</th>
               <th>Name</th>
               <th>Email</th>
-              <th>Status</th>
+              <th>Role</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {users.map((user, index) => (
+            {users.filter(user=>user.role === "User").map((user, index) => (
               <tr key={user._id}>
                 <td>{index + 1}</td>
                 <td>{user.name}</td>
                 <td>{user.email}</td>
+                <td>{user.role === "Admin" ? "" : user.role}</td>
                 <td>
-                  <span className={user.suspended ? "text-danger" : "text-success"}>
-                    {user.suspended ? "Suspended" : "Active"}
-                  </span>
-                </td>
-                <td>
-                  {user.suspended ? (
-                    <button className="btn btn-success me-2" onClick={() => handleUnsuspendUser(user._id)}>
-                      Unsuspend
-                    </button>
-                  ) : (
-                    <button className="btn btn-warning me-2" onClick={() => handleSuspendUser(user._id)}>
-                      Suspend
-                    </button>
-                  )}
+                  
                   <button className="btn btn-danger" onClick={() => handleDeleteUser(user._id)}>
                     Delete
                   </button>

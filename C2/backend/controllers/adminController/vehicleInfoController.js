@@ -1,5 +1,5 @@
 import Vehicle from "../../models/adminModel/vehicleModels.js";
-
+import Payment from "../../models/adminModel/paymentModel.js"
 
 export const vehiclePage = async (req, res) => {
   try {
@@ -111,24 +111,8 @@ export const deleteVehicle = async (req, res) => {
   } catch (error) {
     return res.status(500).json({ error: "Failed to delete vehicle" });
   }
+
 };
-
-
-// Get available vehicles
-export const availableVehicles = async (request, response) => {
-  try {
-    const vehicles = await Vehicle.find({ status: "Available" });
-    if (!vehicles.length) {
-      return response.status(200).json({ message: "No available vehicles" });
-    }
-    return response.status(200).json({ vehicles });
-  } catch (error) {
-    console.error("Error fetching available vehicles:", error);
-    return response.status(500).json({ error: "Failed to fetch available vehicles" });
-  }
-};
-
-
 
 // Get booked vehicles
 export const bookedVehicle = async (request, response) => {
@@ -145,16 +129,16 @@ export const bookedVehicle = async (request, response) => {
 };
 
 
-// Get vehicles under maintenance
-export const maintenanceVehicles = async (request, response) => {
+
+export const getAllPayments = async (req, res) => {
   try {
-    const vehicles = await Vehicle.find({ status: "Maintenance" });
-    if (!vehicles.length) {
-      return response.status(200).json({ message: "No vehicles under maintenance" });
-    }
-    return response.status(200).json({ vehicles });
+    const payments = await Payment.find()
+      .populate("user_id", "name email") // Fetch user details (name & email)
+      .populate("booking_id", "start_date end_date") // Fetch booking details
+      .populate("vehicle_id", "vehicle_name brand"); // Fetch vehicle details
+
+    res.status(200).json({ success: true, payments });
   } catch (error) {
-    console.error("Error fetching maintenance vehicles:", error);
-    return response.status(500).json({ error: "Failed to fetch maintenance vehicles" });
+    res.status(500).json({ success: false, error: "Failed to fetch payments" });
   }
 };

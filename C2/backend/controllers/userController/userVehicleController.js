@@ -4,184 +4,246 @@ import User from "../../models/adminModel/dataTables.js";
 import Booking from "../../models/adminModel/bookingVehicleModls.js";
 import Payment from "../../models/adminModel/paymentModel.js";
 
-// ✅ Fetch Available Vehicles (User Homepage)
-export const userHomepage = async (request, response) => {
+
+
+//  Get all available vehicles with full image URLs
+export const getVehicles = async (req, res) => {
     try {
-        const vehicles = await Vehicle.find({ status: "Available" }).select("vehicle_name brand price_per_day status");
+        const vehicles = await Vehicle.find({ status: "Available" });
 
-        if (!vehicles.length) {
-            return response.status(404).json({ message: "No available vehicles found" });
-        }
+        // Map vehicles to include full image URL
+        const vehiclesWithImages = vehicles.map((vehicle) => ({
+            ...vehicle._doc, // Keep existing data
+            image: vehicle.image
+                ? `${req.protocol}://${req.get("host")}/uploads/${vehicle.image}`
+                : null, // Handle missing images
+        }));
 
-        return response.status(200).json({ vehicles });
+        return res.status(200).json({ vehicles: vehiclesWithImages });
     } catch (error) {
         console.error("Error fetching vehicles:", error);
-        return response.status(500).json({ error: "Error fetching vehicles" });
+        return res.status(500).json({ error: "Failed to fetch vehicles" });
     }
 };
 
-// ✅ Get User Profile
-export const userProfile = async (req, res) => {
+
+export const getVehicleById = async (req, res) => {
     try {
-        const { user_id } = req.params;
-        if (!mongoose.Types.ObjectId.isValid(user_id)) {
-            return res.status(400).json({ error: "Invalid User ID" });
-        }
+        const { id } = req.params; //  Standard RESTful API naming
 
-        const user = await User.findById(user_id).select("-password");
-        if (!user) {
-            return res.status(404).json({ error: "User not found" });
-        }
-
-        res.status(200).json(user);
-    } catch (error) {
-        console.error("Error fetching user profile:", error);
-        res.status(500).json({ error: "Failed to fetch user profile" });
-    }
-};
-
-// ✅ Update User Profile
-export const updateUserProfile = async (request, response) => {
-    try {
-        const { id } = request.params;
-        const { userName, email, contact, city, address } = request.body;
-
+        // Validate MongoDB ObjectId
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            return response.status(400).json({ error: "Invalid User ID" });
+            return res.status(400).json({ error: "Invalid Vehicle ID format" });
         }
 
-        const updatedUser = await User.findByIdAndUpdate(
-            id,
-            { userName, email, contact, city, address },
-            { new: true, runValidators: true }
-        );
-
-        if (!updatedUser) return response.status(404).json({ error: "User not Found" });
-
-        return response.status(200).json({ message: "Successfully updated profile", updatedUser });
-    } catch (error) {
-        console.error("Error updating profile:", error);
-        response.status(500).json({ error: "Failed to Update User Profile" });
-    }
-};
-
-// ✅ Get Vehicle by ID
-export const getVehicleById = async (request, response) => {
-    try {
-        const { id } = request.params;
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return response.status(400).json({ error: "Invalid Vehicle ID" });
-        }
-
+        // Fetch vehicle from database`
         const vehicle = await Vehicle.findById(id);
         if (!vehicle) {
-            return response.status(404).json({ message: "Vehicle not found" });
+            return res.status(404).json({ error: "Vehicle not found" });
         }
 
-        return response.status(200).json({ vehicle });
+        // Construct full image URL (if image exists)
+        const vehicleData = vehicle.toObject(); // Convert Mongoose document to plain object
+        vehicleData.image = vehicle.image 
+            ? `${req.protocol}://${req.get("host")}/uploads/${vehicle.image}`
+            : null; // Handle missing images
+
+        return res.status(200).json({ vehicle: vehicleData });
     } catch (error) {
-        console.error("Error fetching vehicle details:", error);
-        return response.status(500).json({ error: "Error fetching vehicle details" });
+        console.error(" Error fetching vehicle:", error);
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 };
 
-// ✅ Book a Vehicle (User)
-export const usrBookVehicle = async (request, response) => {
-    const session = await mongoose.startSession();
-    session.startTransaction();
+
+
+//  User Booking Vehicle
+export const userBookVehicle = async (req, res) => {
     try {
-        const { user_id } = request.params;
-        const { vehicle_id, start_date, end_date, amount } = request.body;
+        console.log("Received booking request:", req.body);
 
-        if (!user_id || !vehicle_id || !start_date || !end_date || !amount) {
-            await session.abortTransaction();
-            session.endSession();
-            return response.status(400).json({ error: "All fields are required" });
+        const { user_id, vehicle_id, start_date, end_date } = req.body;
+
+        if (!user_id || !vehicle_id || !start_date || !end_date) {
+            console.error("Missing required fields:", req.body);
+            return res.status(400).json({ error: "All fields are required" });
         }
 
-        const user = await User.findById(user_id).session(session);
-        if (!user) {
-            await session.abortTransaction();
-            session.endSession();
-            return response.status(404).json({ error: "User not found" });
+        const vehicle = await Vehicle.findById(vehicle_id);
+        if (!vehicle) {
+            console.error("Vehicle not found:", vehicle_id);
+            return res.status(404).json({ error: "Vehicle not found" });
         }
 
-        const vehicle = await Vehicle.findById(vehicle_id).session(session);
-        if (!vehicle || vehicle.status !== "Available") {
-            await session.abortTransaction();
-            session.endSession();
-            return response.status(400).json({ error: `Vehicle is ${vehicle?.status || "Unavailable"}` });
+        if (vehicle.status !== "Available") {
+            console.error("Vehicle is not available:", vehicle_id);
+            return res.status(400).json({ error: "Vehicle is currently unavailable" });
         }
 
-        const rentalDays = Math.ceil((new Date(end_date) - new Date(start_date)) / 86400000);
+        const startDate = new Date(start_date);
+        const endDate = new Date(end_date);
+
+        if (isNaN(startDate) || isNaN(endDate) || startDate >= endDate) {
+            return res.status(400).json({ error: "Invalid start or end date" });
+        }
+
+        const rentalDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+        if (rentalDays <= 0) {
+            return res.status(400).json({ error: "Booking must be at least 1 day" });
+        }
+
         const total_price = rentalDays * vehicle.price_per_day;
 
-        if (Number(amount) !== total_price) {
-            await session.abortTransaction();
-            session.endSession();
-            return response.status(400).json({ error: `Payment must be exactly ₹${total_price}` });
-        }
+        const booking = await Booking.create({
+            user_id,
+            vehicle_id,
+            start_date,
+            end_date,
+            total_price,
+            status: "Pending",
+        });
 
-        const booking = await Booking.create([{ user_id, vehicle_id, booked_by_type: "User", start_date, end_date, total_price, status: "Booked" }], { session });
+        console.log("Booking created successfully:", booking);
 
-        await Payment.create([{ user_id, booking_id: booking[0]._id, vehicle_id, amount: total_price, payment_method: "Online", status: "Completed" }], { session });
-
-        await vehicle.updateOne({ status: "Booked" }, { session });
-
-        await session.commitTransaction();
-        session.endSession();
-
-        return response.status(200).json({ message: "Vehicle booked successfully", booking: booking[0], total_price });
+        res.status(200).json({ message: "Booking created. Proceed with payment.", booking });
     } catch (error) {
-        await session.abortTransaction();
-        session.endSession();
-        console.error("Booking error:", error);
-        return response.status(500).json({ error: "Booking failed" });
+        console.error("Error in booking vehicle:", error);
+        res.status(500).json({ error: "Booking failed. Please try again later." });
     }
 };
 
-// ✅ Fetch User Booking History
-export const userBookingHistory = async (request, response) => {
+export const makePayment = async (req, res) => {
     try {
-        const { user_id } = request.query;
+        console.log("Received payment request:", req.body);
+
+        const { user_id, booking_id, payment_method, total_price } = req.body;
+        console.log(user_id, booking_id, payment_method, total_price);
+        
+        if (!user_id || !booking_id || !payment_method || !total_price) {
+            return res.status(400).json({ error: "All fields are required for payment" });
+        }
+
+        const booking = await Booking.findById(booking_id);
+        if (!booking) {
+            console.error("Booking not found:", booking_id);
+            return res.status(404).json({ error: "Booking not found" });
+        }
+
+        if (booking.status !== "Pending") {
+            return res.status(400).json({ error: "Booking is already processed or invalid" });
+        }
+
+        const payment = await Payment.create({
+            user_id,
+            booking_id,
+            vehicle_id: booking.vehicle_id,
+            amount: total_price,
+            payment_method,
+            status: "Completed",
+        });
+
+        await Booking.findByIdAndUpdate(booking_id, { status: "Booked" });
+        await Vehicle.findByIdAndUpdate(booking.vehicle_id, { status: "Booked" });
+
+        console.log("Payment successful:", payment);
+
+        res.status(200).json({ message: "Payment successful. Booking confirmed!", payment });
+    } catch (error) {
+        console.error("Error processing payment:", error);
+        res.status(500).json({ error: "Payment failed. Please try again later." });
+    }
+};
+
+
+
+
+//  Fetch User Booking History
+export const userBookingHistory = async (req, res) => {
+    try {
+        const { user_id } = req.params;
 
         if (!mongoose.Types.ObjectId.isValid(user_id)) {
-            return response.status(400).json({ error: "Invalid User ID" });
+            return res.status(400).json({ error: "Invalid User ID" });
         }
 
         const bookings = await Booking.find({ user_id }).populate("vehicle_id", "vehicle_name brand");
 
         if (!bookings.length) {
-            return response.status(404).json({ message: "No booking history found" });
+            return res.status(404).json({ message: "No booking history found" });
         }
 
-        return response.status(200).json({ bookings });
+        return res.status(200).json({ bookings });
     } catch (error) {
         console.error("Error fetching bookings:", error);
-        return response.status(500).json({ error: "Error fetching bookings" });
+        return res.status(500).json({ error: "Error fetching bookings" });
     }
 };
 
-// ✅ Complete Booking (User)
-export const completeBooking = async (request, response) => {
-    try {
-        const { booking_id } = request.params;
 
+
+// Cancel Booking (User)
+export const cancelBooking = async (req, res) => {
+    try {
+        const { booking_id } = req.body;
+        console.log(booking_id);
+        
         if (!mongoose.Types.ObjectId.isValid(booking_id)) {
-            return response.status(400).json({ error: "Invalid Booking ID" });
+            return res.status(400).json({ error: "Invalid Booking ID" });
         }
 
         const booking = await Booking.findById(booking_id);
         if (!booking) {
-            return response.status(404).json({ message: "Booking not found" });
+            return res.status(404).json({ error: "Booking not found" });
         }
 
-        await booking.updateOne({ status: "Completed" });
+        if (booking.status === "Completed") {
+            return res.status(400).json({ error: "Cannot cancel a completed booking" });
+        }
+
+        // If the booking is already paid, process refund
+        const payment = await Payment.findOne({ booking_id });
+        if (payment) {
+            await Payment.findByIdAndUpdate(payment._id, { status: "Refunded" });
+        }
+
+        // Update booking status
+        await Booking.findByIdAndUpdate(booking_id, { status: "Cancelled" });
         await Vehicle.findByIdAndUpdate(booking.vehicle_id, { status: "Available" });
 
-        response.status(200).json({ message: "Booking completed successfully" });
+        res.status(200).json({ message: "Booking cancelled successfully. Refund processed if applicable." });
     } catch (error) {
-        console.error("Error completing booking:", error);
-        return response.status(500).json({ error: "Failed to complete booking" });
+        console.error("Error cancelling booking:", error);
+        return res.status(500).json({ error: "Failed to cancel booking" });
     }
 };
+
+// Complete Booking (User)
+export const completeBooking = async (req, res) => {
+    try {
+        const { booking_id } = req.body;
+
+        if (!mongoose.Types.ObjectId.isValid(booking_id)) {
+            return res.status(400).json({ error: "Invalid Booking ID" });
+        }
+
+        const booking = await Booking.findById(booking_id);
+        if (!booking) {
+            return res.status(404).json({ error: "Booking not found" });
+        }
+
+        if (booking.status !== "Booked") {
+            return res.status(400).json({ error: "Booking is not active or already completed" });
+        }
+
+        await Booking.findByIdAndUpdate(booking_id, { status: "Completed" });
+        await Vehicle.findByIdAndUpdate(booking.vehicle_id, { status: "Available" });
+
+        res.status(200).json({ message: "Booking completed successfully" });
+    } catch (error) {
+        console.error("Error completing booking:", error);
+        return res.status(500).json({ error: "Failed to complete booking" });
+    }
+};
+
+
+

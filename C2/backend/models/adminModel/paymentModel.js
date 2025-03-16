@@ -1,13 +1,15 @@
 import mongoose from "mongoose";
 
-const paymentSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  razorpay_order_id: { type: String, required: true },
-  razorpay_payment_id: { type: String, required: true },
-  amount: { type: Number, required: true },
-  status: { type: String, enum: ["Success", "Failed"], default: "Success" },
-  createdAt: { type: Date, default: Date.now },
-});
+const paymentSchema = new mongoose.Schema(
+    {
+        user_id: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+        booking_id: { type: mongoose.Schema.Types.ObjectId, ref: "Booking", required: true },
+        vehicle_id: { type: mongoose.Schema.Types.ObjectId, ref: "Vehicle", required: true },
+        amount: { type: Number, required: true, min: 0 },
+        payment_method: { type: String, enum: ["Online", "Cash"], default: "Online" },
+        status: { type: String, enum: ["Pending", "Completed", "Failed"], default: "Pending" },
+    },
+    { timestamps: true }
+);
 
-const Payment = mongoose.model("Payment", paymentSchema);
-export default Payment;
+export default mongoose.model("Payment", paymentSchema);

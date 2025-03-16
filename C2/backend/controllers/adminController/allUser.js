@@ -14,55 +14,30 @@ export const getAllUsers = async (req, res) => {
     }
 };
 
-// Get user by ID
 export const getUserById = async (req, res) => {
     try {
         const { user_id } = req.params;
+
+        // Validate user_id
+        if (!user_id) {
+            return res.status(400).json({ error: "Invalid user ID" });
+        }
+
+        // Fetch user from database
         const user = await User.findById(user_id);
 
         if (!user) {
             return res.status(404).json({ error: "User not found" });
         }
-        return res.status(200).json({ user });
+
+        res.status(200).json({ user });
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({ error: "Failed to fetch user" });
+        console.error("Error fetching user:", error);
+        res.status(500).json({ error: "Server error" });
     }
 };
 
-// Suspend user by Admin
-export const suspendUser = async (req, res) => {
-    try {
-        const { user_id } = req.params;
-        const user = await User.findById(user_id);
-        if (!user) {
-            return res.status(404).json({ error: "User not found" });
-        }
-        user.status = "Suspended";
-        await user.save();
-        return res.status(200).json({ message: `Successfully suspended ${user.userName}` });
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ error: "Failed to suspend user" });
-    }
-};
 
-// Un-suspend user by Admin
-export const unSuspendUser = async (req, res) => {
-    try {
-        const { user_id } = req.params;
-        const user = await User.findById(user_id);
-        if (!user) {
-            return res.status(404).json({ error: "User not found" });
-        }
-        user.status = "Active";
-        await user.save();
-        return res.status(200).json({ message: `Successfully activated ${user.userName}` });
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ error: "Failed to unsuspend user" });
-    }
-};
 
 // Delete user by Admin
 export const deleteUserByAdmin = async (req, res) => {

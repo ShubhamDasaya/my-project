@@ -60,15 +60,19 @@ export const userSignIn = async (request, response) => {
     }
 
     // Validate password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return response.status(401).json({ error: "Invalid password. Try again." });
-    }
-    return response.status(200).json({
-      message: `Successfully logged in as ${role}!`,
-      token,
-      user,
-    });
+      if(user.role==="User"){
+
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+          return response.status(401).json({ error: "Invalid password. Try again." });
+        }
+        return response.status(200).json({
+          message: `Successfully logged in as ${role}!`,
+          token,
+          user,
+        });
+      }
+
 
 
 

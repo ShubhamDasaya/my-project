@@ -2,29 +2,13 @@ import mongoose from "mongoose";
 
 const vehicleSchema = new mongoose.Schema(
   {
-    vehicle_name: {
-      type: String,
-      required: true,
-    },
-    license_plate: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-    price_per_day: {
-      type: Number,
-      required: true,
-    },
-    brand: {
-      type: String,
-      required: true,
-    },
-
+    vehicle_name: { type: String,required: true,},
+    license_plate: {type: String,required: true,unique: true,},
+    price_per_day: {type: Number,required: true,},
+    brand: {type: String,required: true,},
     image: String,
-    
-    status: {
-      type: String,
-      enum: ["Pending", "Available", "Booked", "Maintenance", "Cancelled"],
+    year:Number,
+status: {type: String,enum: ["Pending", "Available", "Booked", "Maintenance", "Cancelled"],
       default: "Pending",
       
     },

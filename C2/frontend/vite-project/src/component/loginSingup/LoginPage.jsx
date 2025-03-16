@@ -2,13 +2,15 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import { loginSuccess } from "../rudex/AuthSlice.jsx";
+import { useNavigate,Link } from "react-router-dom";
+import { loginSuccess } from "../rudux/AuthSlice.jsx";
 import APIs from "../api/Api";
 
 const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,6 +27,8 @@ const Login = () => {
         password,
         role,
       });
+      console.log(response);
+      
 
       if (response.data.token) {
         dispatch(loginSuccess({ user: { email, role }, token: response.data.token }));
@@ -46,6 +50,7 @@ const Login = () => {
           <div className="mb-3">
             <input
               type="email"
+              name="email"
               className="form-control"
               placeholder="Email"
               value={email}
@@ -72,7 +77,15 @@ const Login = () => {
           <button type="submit" className="btn btn-dark w-100">
             Login
           </button>
-        </form>
+          </form>
+            <div className="text-center mt-3">
+              <Link to="/forgot-password"  className="text-decoration-none">Forgot Password?</Link>
+            </div>
+            <div className="text-center mt-2">
+              <span> Don't have an account?</span>
+              <Link to="/signup" className="text-decoration-none">Sign Up </Link>
+            </div>
+       
       </div>
     </div>
   );

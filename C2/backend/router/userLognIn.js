@@ -1,28 +1,28 @@
 import express from "express";
+import { getVehicles,completeBooking, getVehicleById, userBookingHistory, userBookVehicle,makePayment,cancelBooking } from "../controllers/userController/userVehicleController.js";
 import auth from "../middlewares/auth.js";
-import {
-    userHomepage,
-    getVehicleById,
-    usrBookVehicle,
-    userBookingHistory,
-    completeBooking,
-    userProfile,
-    updateUserProfile
-} from "../controllers/userController/userVehicleController.js";
+
 
 const router = express.Router();
 
-// User Profile Routes
-router.get("/profile/:user_id", auth, userProfile);
-router.put("/profile/:id", auth, updateUserProfile);
+//  Route: Get All Vehicles
+router.get("/vehicles",auth, getVehicles);
+// Route: Get Vehicle Details by ID    ok
+router.get("/vehicle/:id",auth, getVehicleById);
 
-// Vehicle Routes
-router.get("/vehicle", auth, userHomepage);
-router.get("/vehicle/:id", auth, getVehicleById);
+//  Route: Book a Vehicle   ok
+router.post("/book",auth, userBookVehicle);
 
-// Booking Routes
-router.post("/book/:user_id", auth, usrBookVehicle);
-router.get("/bookings", auth, userBookingHistory);
-router.put("/complete/:booking_id", auth, completeBooking);
+// Router: To sent the payment
+router.post("/payment", auth, makePayment);
+
+//  Route: Fetch User Booking History
+router.get("/history/:user_id", auth, userBookingHistory);
+
+//  Complete a booking
+router.put("/complete", completeBooking);
+
+//  Cancel a booking
+router.put("/cancel", cancelBooking);
 
 export default router;

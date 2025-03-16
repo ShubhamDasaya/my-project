@@ -26,6 +26,9 @@ const AdminHeader = () => {
               <li className="nav-item">
                 <NavLink className="nav-link" to="/admin/allUsers">All Users</NavLink>
               </li>
+              <li className="nav-item">
+                <NavLink className="nav-link" to="/">log-out</NavLink>
+              </li>
             </ul>
           </div>
         </div>

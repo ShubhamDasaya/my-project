@@ -1,97 +1,76 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import api from "../api/Api";
+import APIs from "../api/Api";
 
-const VehicleDetails = () => {
+const UserVehicleDetails = () => {
   const { vehicleId } = useParams();
   const navigate = useNavigate();
-
   const [vehicle, setVehicle] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetchVehicleDetails();
-  }, []);
-
-  const getAuthHeaders = () => {
-    const token = localStorage.getItem("token");
-    return token ? { Authorization: `Bearer ${token}` } : null;
-  };
+    if (vehicleId) fetchVehicleDetails();
+  }, [vehicleId]);
 
   const fetchVehicleDetails = async () => {
     setLoading(true);
     setError("");
 
     try {
-      const headers = getAuthHeaders();
-      if (!headers) {
-        setError("No token found! Please log in.");
+      if (!vehicleId || vehicleId.length !== 24) {
+        setError("Invalid Vehicle ID.");
         setLoading(false);
         return;
       }
 
-      const response = await axios.get(api.VEHICLE_DETAILS_API(vehicleId), { headers });
+      const response = await axios.get(APIs.VEHICLE_DETAILS_ADMIN_API(vehicleId));
+      if (!response.data.vehicle) throw new Error("Vehicle not found!");
+
       setVehicle(response.data.vehicle);
     } catch (error) {
-      console.error("Error fetching vehicle details:", error);
-      setError("Failed to load vehicle details.");
+      setError(error.response?.data?.error || "Failed to load vehicle details.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async () => {
+  // **Delete Vehicle**
+  const handleDeleteVehicle = async () => {
     if (!window.confirm("Are you sure you want to delete this vehicle?")) return;
 
     try {
-      const headers = getAuthHeaders();
-      if (!headers) {
-        alert("No token found! Please log in.");
-        return;
-      }
-
-      await axios.delete(api.DELETE_VEHICLE_API(vehicleId), { headers });
+      await axios.delete(APIs.DELETE_VEHICLE_API(vehicleId));
       alert("Vehicle deleted successfully!");
-      navigate("/admin/allVehicle");
+      navigate("/admin/allVehicle"); // Redirect after deletion
     } catch (error) {
       console.error("Error deleting vehicle:", error);
       alert("Failed to delete vehicle.");
     }
   };
 
-  const handleMaintenance = async () => {
+  // **Mark Vehicle as Maintenance**
+  const handleMarkAsMaintenance = async () => {
     try {
-      const headers = getAuthHeaders();
-      if (!headers) {
-        alert("No token found! Please log in.");
-        return;
-      }
-
-      await axios.put(api.MAINTENANCE_VEHICLE_API(vehicleId), {}, { headers });
-      alert("Vehicle marked as under maintenance.");
+      await axios.put(APIs.VEHICLES_UNDER_MAINTENANCE_API(vehicleId));
+      alert("Vehicle marked as 'Maintenance'");
       fetchVehicleDetails();
     } catch (error) {
-      console.error("Error updating maintenance status:", error);
-      alert("Failed to update maintenance status.");
+      console.error("Error marking as maintenance:", error);
+      alert("Failed to update vehicle status.");
     }
   };
 
-  const handleAvailable = async () => {
+  // **Mark Vehicle as Available**
+  const handleMarkAsAvailable = async () => {
     try {
-      const headers = getAuthHeaders();
-      if (!headers) {
-        alert("No token found! Please log in.");
-        return;
-      }
-
-      await axios.put(api.AVAILABLE_VEHICLE_API(vehicleId), {}, { headers });
-      alert("Vehicle is now available for booking.");
+      await axios.put(APIs.AVAILABLE_VEHICLES_API(vehicleId));
+      alert("Vehicle marked as 'Available'");
       fetchVehicleDetails();
     } catch (error) {
-      console.error("Error updating availability:", error);
-      alert("Failed to update vehicle availability.");
+      console.error("Error marking as available:", error);
+      alert("Failed to update vehicle status.");
     }
   };
 
@@ -102,47 +81,48 @@ const VehicleDetails = () => {
       ) : error ? (
         <h5 className="text-center text-danger">{error}</h5>
       ) : vehicle ? (
-        <div className="card p-4 shadow-sm border-0 rounded">
+        <div className="card p-4 shadow-lg border-0 rounded">
           <div className="text-center">
             <img
-              src={vehicle?.image}
+              src={vehicle.image?.startsWith("http") ? vehicle.image : `${APIs.BASE_URL}/uploads/${vehicle.image}`}
               alt={vehicle.vehicle_name || "Vehicle"}
               className="img-fluid rounded"
-              style={{ height: "250px", objectFit: "cover" }}
+              style={{ height: "300px", width: "100%", objectFit: "cover" }}
+              onError={(e) => (e.target.src = "/default-car.jpg")}
             />
           </div>
 
           <div className="mt-4">
-            <h3 className="fw-bold">{vehicle.vehicle_name}</h3>
-            <p><strong>Brand:</strong> {vehicle.brand}</p>
-            <p><strong>Year:</strong> {vehicle.year}</p>
-            <p><strong>Price Per Day:</strong> ${vehicle.price_per_day}</p>
+            <h3 className="fw-bold text-primary">{vehicle.vehicle_name || "Unnamed Vehicle"}</h3>
+            <p><strong>Brand:</strong> {vehicle.brand || "N/A"}</p>
+            <p><strong>Year:</strong> {vehicle.year || "N/A"}</p>
+            <p><strong>Price Per Day:</strong> ${vehicle.price_per_day || "N/A"}</p>
             <p>
               <strong>Status:</strong>
-              <span className={`badge ${vehicle.status === "available" ? "bg-success" : "bg-danger"}`}>
-                {vehicle.status}
+              <span className={`badge ${vehicle.status === "Available" ? "bg-success" : "bg-danger"} ms-2`}>
+                {vehicle.status || "Unknown"}
               </span>
             </p>
+            <button
+  style={{ width: "25%", marginLeft: "10px", padding: "10px", fontWeight: "bold" }}
+  className="btn btn-outline-primary"
+  onClick={() => navigate(`/admin/update-vehicle/${vehicle._id}`)}
+>
+  Update Vehicle
+</button>
 
-            <div className="mt-3">
-              <button className="btn btn-danger me-2" onClick={handleDelete}>
-                Delete Vehicle
-              </button>
+<button
+  style={{ width: "25%", marginTop: "10px", marginLeft:"5px", padding: "10px", fontWeight: "bold" }}
+  className="btn btn-danger"
+  onClick={handleDeleteVehicle}
+>
+  Delete Vehicle
+</button>
 
-              {vehicle.status === "available" ? (
-                <button className="btn btn-warning me-2" onClick={handleMaintenance}>
-                  Mark as Maintenance
-                </button>
-              ) : (
-                <button className="btn btn-success me-2" onClick={handleAvailable}>
-                  Make Available for Booking
-                </button>
-              )}
 
-              <button className="btn btn-primary" onClick={() => navigate(`/admin/booking/${vehicle._id}`)}>
-                Book Now
-              </button>
-            </div>
+
+
+
           </div>
         </div>
       ) : (
@@ -152,4 +132,4 @@ const VehicleDetails = () => {
   );
 };
 
-export default VehicleDetails;
+export default UserVehicleDetails;

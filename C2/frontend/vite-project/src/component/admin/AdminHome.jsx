@@ -43,7 +43,7 @@ const AdminDashboard = () => {
               <FaMoneyBillWave size={50} className="text-warning mb-3" />
               <h4>Total Payments</h4>
               <p className="text-muted">Manage transactions</p>
-              <Link to="/admin/payments" className="btn btn-warning">
+              <Link to="/admin/payment" className="btn btn-warning">
                 View Payments
               </Link>
             </div>

@@ -79,7 +79,7 @@ const AddVehicle = () => {
   return (
     <div className="container mt-4">
       <div className="card p-4 shadow-lg border-0 rounded">
-        <h3 className="text-center mb-4 text-primary">🚗 Add New Vehicle</h3>
+        <h3 className="text-center mb-4 text-primary"> Add New Vehicle</h3>
         <form onSubmit={handleSubmit}>
           <div className="row g-3">
             {/* Car Name */}
