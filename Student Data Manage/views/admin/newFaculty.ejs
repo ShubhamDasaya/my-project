@@ -1,0 +1,36 @@
+<%- include('upload/header') %>
+
+<div class="container mt-5">
+    <h1>Add New Faculty</h1>
+    <form action="/admin/faculty/add" method="POST">
+        <!-- Name field -->
+        <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input type="text" class="form-control" id="name" name="name" required>
+        </div>
+        
+        <!-- Department field -->
+        <div class="mb-3">
+            <label for="department" class="form-label">Department</label>
+            <input type="text" class="form-control" id="department" name="department" required>
+        </div>
+
+        <!-- Designation field -->
+        <div class="mb-3">
+            <label for="designation" class="form-label">Designation</label>
+            <input type="text" class="form-control" id="designation" name="designation" required>
+        </div>
+
+        <!-- Contact field -->
+        <div class="mb-3">
+            <label for="contact" class="form-label">Contact</label>
+            <input type="text" class="form-control" id="contact" name="contact" required>
+        </div>
+
+        <!-- Submit and Cancel buttons -->
+        <button type="submit" class="btn btn-primary">Add Faculty</button>
+        <a href="/admin/faculty" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+
+<%- include('upload/footer') %>

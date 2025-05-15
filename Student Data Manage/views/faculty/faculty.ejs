@@ -1,0 +1,47 @@
+<%- include('upload/header') %>
+<div class="container mt-5">
+    <h1>Faculty Data</h1>
+    <p>This page displays the faculty data and provides options to update or delete records.</p>
+
+    <!-- Button to add new faculty -->
+    <div class="d-grid gap-2 mb-3">
+      <button class="btn btn-primary" onclick="window.location.href='/admin/faculty/add'">Add New Faculty</button>
+    </div>
+
+    <!-- Table to display faculty data -->
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Designation</th>
+          <th>Department</th>
+          <th>Contact</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (faculties && faculties.length > 0) { %>
+          <% faculties.forEach((faculty, index) => { %>
+            <tr>
+              <td><%= index + 1 %></td>
+              <td><%= faculty.name %></td>
+              <td><%= faculty.designation %></td>
+              <td><%= faculty.department %></td>
+              <td><%= faculty.contact %></td>
+              <td>
+               
+                
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="6" class="text-center">No faculty found</td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+</div>
+<%- include('upload/footer') %>
