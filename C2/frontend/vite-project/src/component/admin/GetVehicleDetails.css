@@ -1,0 +1,39 @@
+/* Background Styling */
+.vehicle-details-container {
+    background: url("../assets/vehicle-bg.jpg") no-repeat center center;
+    background-size: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 50px 0;
+  }
+  
+  /* Card Styling */
+  .vehicle-details-card {
+    background: rgba(255, 255, 255, 0.9); 
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Image Styling */
+  .vehicle-image {
+    max-height: 300px;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+  
+  /* Button Styling */
+  .btn-custom {
+    width: 30%;
+    padding: 10px;
+    font-weight: bold;
+    margin-right: 10px;
+  }
+  
+  .btn-danger {
+    background-color: red;
+    color: white;
+    border: none;
+  }
+  

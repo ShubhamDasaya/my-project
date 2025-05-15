@@ -1,0 +1,12 @@
+
+.Body{
+    position: relative;
+    min-height: 85vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: url('/image1.jpg'); /* Update path */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}

@@ -1,0 +1,8 @@
+.profile-container {
+    background-image: url('../../../public/image5.jpg'); 
+    background-size: cover;
+    background-position: center;
+    min-height: 100vh; 
+    padding: 20px;
+    color: white; 
+  }

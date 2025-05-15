@@ -1,0 +1,18 @@
+.card-content {
+  margin-top: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(246, 242, 242, 0.844);
+  backdrop-filter: blur(10px);
+  padding: 20px;
+  border-radius: 10px;
+  opacity: 0.8;
+}
+.vehicle-card {
+  max-width: 900px;
+  margin: auto;
+}
+
+
+  

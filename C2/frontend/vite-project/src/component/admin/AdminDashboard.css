@@ -1,0 +1,12 @@
+.admin-dashboard {
+    background-image: url('./pexels-pixabay-39855.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 68vh;
+    padding: 20px;
+    opacity: 1;  
+}
+
+
+
